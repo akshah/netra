@@ -1,0 +1,5 @@
+detourDetection
+
+-Read BGP data from MySQL DB
+-Detect detours in BGP data
+-Push results to DB
