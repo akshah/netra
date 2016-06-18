@@ -3,7 +3,9 @@ Netra: Tool to detect international routing detours
 
 Netra detects routing detours (routes that start and end in the same country but visit another country in between) as 
 seen in control (BGP) plane; but can validate the detour using ICMP Paris traceroute locally and using RIPE Atlas 
-platform. Input to Netra are raw RIB dumps in MRT format. 
+platform. Input to Netra are raw RIB dumps in MRT format.  
+
+A report on methodology and results analysis can be found here:  http://arxiv.org/pdf/1606.05047v1.pdf
 
 
 Requirements

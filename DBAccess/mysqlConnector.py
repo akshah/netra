@@ -3,7 +3,7 @@ from contextlib import closing
 
 class mysqlConnector:
     
-    def __init__(self,host='marshal.netsec.colostate.edu',user='root',passwd='n3ts3cm5q1',dbname='bgp_archive'):
+    def __init__(self,host='marshal.netsec.colostate.edu',user='root',passwd='****',dbname='bgp_archive'):
     
     #Prepare DB info
         self.db = pymysql.connect(host=host,
