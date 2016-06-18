@@ -12,9 +12,9 @@ Requirements
 This is a python3 implementation. A connection to MySQL 5+ is needed to store results of analysis.
 A list of required python modules is available in 'requirements.txt'.
 Other custom modules:
-BGP Data Engine: https://github.com/akshah/bgpDataEngine.git
-GeoInfo Interface: https://github.com/akshah/geoInfo.git
-Custom Utils: https://github.com/akshah/customUtilities.git
+-BGP Data Engine: https://github.com/akshah/bgpDataEngine.git
+-GeoInfo Interface: https://github.com/akshah/geoInfo.git
+-Custom Utils: https://github.com/akshah/customUtilities.git
 
 Instructions to launch analysis
 --------------------------
