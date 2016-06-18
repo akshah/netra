@@ -17,6 +17,7 @@ Other custom modules:
 BGP Data Engine: https://github.com/akshah/bgpDataEngine.git  
 GeoInfo Interface: https://github.com/akshah/geoInfo.git  
 Custom Utils: https://github.com/akshah/customUtilities.git  
+RIPE API interface: https://github.com/RIPE-NCC/ripe-atlas-cousteau.git  
 
 Instructions to launch analysis
 --------------------------
