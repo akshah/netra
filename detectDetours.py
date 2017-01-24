@@ -404,6 +404,10 @@ if __name__ == "__main__":
 
     try:
         dbname=config['MySQL']['dbname']
+        serverIP = config['MySQL']['serverIP']
+        serverPort = config['MySQL']['serverPort']
+        user = config['MySQL']['user']
+        password = config['MySQL']['password']
 
         peerFilterEnabled=eval(config['FILTERS']['peerFilterEnabled'])
         prefixFilterEnabled=eval(config['FILTERS']['prefixFilterEnabled'])
@@ -458,9 +462,9 @@ if __name__ == "__main__":
     queue=Queue()
  
     #Prepare DB info
-    db = pymysql.connect(host="proton.netsec.colostate.edu",
-                     user="root", 
-                     passwd="****",
+    db = pymysql.connect(host=serverIP,
+                     user=user,
+                     passwd=password,
                     db=dbname)
     
     
