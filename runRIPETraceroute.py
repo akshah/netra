@@ -17,13 +17,6 @@ from ripe.atlas.cousteau import (
   AtlasCreateRequest
 )
 
-API_KEY_CREATE_UDM=""
-API_KEY_DOWNLOAD_UDM=""
-typeRun="traceroute"
-outFile='ripeLiveMeasurements.txt'
-counter=0
-noProbesASes=[]
-
 def haversine(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points
@@ -153,12 +146,40 @@ def runTraceroute(target,country,asn):
 
 if __name__ == "__main__":
 
+    if sys.version_info < (3, 0):
+        print("ERROR: RIPE only support python2.7. Please use python2.7")
+        exit(0)
+
+    configFile = 'conf/ripe.conf'
+    config = configparser.ConfigParser()
+    config.read(configFile)
+    config.sections()
+
+    counter = 0
+    noProbesASes = []
+    try:
+        dbname = config['MySQL']['dbname']
+        serverIP = config['MySQL']['serverIP']
+        serverPort = config['MySQL']['serverPort']
+        user = config['MySQL']['user']
+        password = config['MySQL']['password']
+
+        API_KEY_CREATE_UDM = config['DEFAULT']['API_KEY_CREATE_UDM']
+        API_KEY_DOWNLOAD_UDM = config['DEFAULT']['API_KEY_DOWNLOAD_UDM']
+        typeRun = config['DEFAULT']['typeRun']
+        outFile = config['DEFAULT']['outFile']
+
+    except:
+        traceback.print_exc()
+
+
     allmsms=[]
     #Get all detoured prefixes
-    db = pymysql.connect(host="proton.netsec.colostate.edu",
-                     user="root",
-                     passwd="****",
-                     db="livedetoursRIPE")
+    db = pymysql.connect(host=serverIP,
+                         port=serverPort,
+                     user=user,
+                     passwd=password,
+                     db=dbname)
     prefixToTraceroute={}
     with closing( db.cursor() ) as cur:
         try:
@@ -224,7 +245,3 @@ if __name__ == "__main__":
 
     except:
         traceback.print_exc()
-
-
-
-
