@@ -483,54 +483,54 @@ if __name__ == "__main__":
     
     maxmind = MaxMindRepo()
     NUM_HOURS_PREV=int(config['EXEC']['numHoursInterval'])
-    #while True:
-    start_time,_=currentTime()
+    while True:
+        start_time,_=currentTime()
 
-    currEpoch,strTime=currentTime()
-    currEpoch=int(str(currEpoch).split('.')[0])-3600
-    strTime=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(currEpoch))
-    preTime=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(currEpoch-(NUM_HOURS_PREV*3600)))
-    srtTimeFormatted=strTime.replace(' ','').replace(':','').replace('-','')
-    strPreTimeFormatted=preTime.replace(' ','').replace(':','').replace('-','')
+        currEpoch,strTime=currentTime()
+        currEpoch=int(str(currEpoch).split('.')[0])-3600
+        strTime=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(currEpoch))
+        preTime=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(currEpoch-(NUM_HOURS_PREV*3600)))
+        srtTimeFormatted=strTime.replace(' ','').replace(':','').replace('-','')
+        strPreTimeFormatted=preTime.replace(' ','').replace(':','').replace('-','')
 
-    logger.info('-----Running detour detection for {0} to {1}-----'.format(preTime,strTime))
+        logger.info('-----Running detour detection for {0} to {1}-----'.format(preTime,strTime))
 
-    bde=bgpDataEngine()
-    bde.getRange('ribs',strPreTimeFormatted,srtTimeFormatted)
-    mrtfilesTmp=bde.filesDownloaded
-    del(bde)
+        bde=bgpDataEngine()
+        #select source of BGP data
+        bde.accessToBGPMonArchive = False
+        bde.accessToRVArchive = True
+        bde.accessToRipeArchive = False
+        bde.getRange('ribs',strPreTimeFormatted,srtTimeFormatted)
+        mrtfilesTmp=bde.filesDownloaded
+        del(bde)
 
-    mrtfiles=[]
-    for name in mrtfilesTmp:
-        if name.lower().endswith('.gz') or name.lower().endswith('.mrt') or name.lower().endswith('.bz2'):
-            if 'rib' in name or 'bview' in name:
-                #Sampling
-                #or '.0800.' in name or '.1600.' in name
-                if '.0000.' in name:
-                    mrtfiles.append(name)
+        mrtfiles=[]
+        for name in mrtfilesTmp:
+            if name.lower().endswith('.gz') or name.lower().endswith('.mrt') or name.lower().endswith('.bz2'):
+                if 'rib' in name or 'bview' in name:
+                    #Sampling
+                    #or '.0800.' in name or '.1600.' in name
+                    if '.0000.' in name:
+                        mrtfiles.append(name)
 
-    isTest=False
-    if isTest:
-        mrtfiles=['route-views.sg.rib.20160101.0000.bz2']
+        if len(mrtfiles)==0:
+            logger.warn("No MRT file found")
+            print("WARN: Given directory does not contain MRT files.")
 
-    if len(mrtfiles)==0:
-        logger.warn("No MRT file found")
-        print("WARN: Given directory does not contain MRT files.")
+        mrtfiles.sort()
 
-    mrtfiles.sort()
+        runAnalysis(mrtfiles)
 
-    runAnalysis(mrtfiles)
+        end_time,_=currentTime()
+        processingTime=str(int((end_time-start_time)/60))+' minutes and '+str(int((end_time-start_time)%60))+' seconds'
+        db.commit()
 
-    end_time,_=currentTime()
-    processingTime=str(int((end_time-start_time)/60))+' minutes and '+str(int((end_time-start_time)%60))+' seconds'
-    db.commit()
+        command="python2.7 runRIPETraceroute.py &> riperun.stdout"
+        os.system(command)
 
-    command="python2.7 runRIPETraceroute.py &> riperun.stdout"
-    os.system(command)
+        logger.info('-----Finished detour detection for {0} to {1} in {2}-----'.format(preTime,strTime,processingTime))
 
-    logger.info('-----Finished detour detection for {0} to {1} in {2}-----'.format(preTime,strTime,processingTime))
-
-    #time.sleep(NUM_HOURS_PREV*3600)
+        time.sleep(NUM_HOURS_PREV*3600)
 
 
     db.close()
