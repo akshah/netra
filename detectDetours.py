@@ -504,7 +504,7 @@ if __name__ == "__main__":
         bde.accessToBGPMonArchive = False
         bde.accessToRVArchive = True
         bde.accessToRipeArchive = False
-        bde.getRange('ribs',strPreTimeFormatted,srtTimeFormatted)
+        bde.getRange('ribs',strPreTimeFormatted,srtTimeFormatted,load2db=False)
         mrtfilesTmp=bde.filesDownloaded
         del(bde)
 
@@ -529,6 +529,7 @@ if __name__ == "__main__":
         processingTime=str(int((end_time-start_time)/60))+' minutes and '+str(int((end_time-start_time)%60))+' seconds'
         db.commit()
 
+        logger.info("Launching traceroutes")
         command="python2.7 runRIPETraceroute.py &> riperun.stdout"
         os.system(command)
 
