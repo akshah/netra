@@ -9,7 +9,7 @@ import threading
 import subprocess
 import getopt
 import time
-import pymysql
+import MySQLdb as pymysql
 import ipaddress
 import random
 import sys
