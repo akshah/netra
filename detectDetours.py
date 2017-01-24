@@ -285,6 +285,55 @@ def runAnalysis(mrtfiles):
             #Load result file in DB and then delete it.
             abnormalRibEntries=[]
             abnormalRibEntries=output.loadtoDB(db)
+            if runTraceroutesLocal:
+                # Launch Traceroutes
+                normalizeabnormalRibEntries = []
+                try:
+
+                    for abnormalRibEntry in abnormalRibEntries:
+                        ribTime = abnormalRibEntry[1]
+                        peer = abnormalRibEntry[2]
+                        prefix = abnormalRibEntry[3]
+                        asPath = abnormalRibEntry[4]
+                        randomHostList = []
+                        outfileList = []
+                        # if prefix == '0.0.0.0/0':
+                        #    return retList
+                        network = ipaddress.IPv4Network(prefix)
+                        # if network.is_private:
+                        #    return retList
+                        allNets = [network] if network.prefixlen >= 24 else network.subnets(new_prefix=24)
+                        for net in allNets:
+                            normalizeabnormalRibEntriesIn = []
+                            randomHost = None
+                            allHosts = list(net.hosts())
+                            if (net.prefixlen == 32):
+                                allHosts.append(net.network_address)
+                            randomHost = str(random.choice(allHosts))
+
+                            if not randomHost:
+                                continue
+                            normalizeabnormalRibEntriesIn.append('None')
+                            normalizeabnormalRibEntriesIn.append(ribTime)
+                            normalizeabnormalRibEntriesIn.append(peer)
+                            normalizeabnormalRibEntriesIn.append(prefix)
+                            normalizeabnormalRibEntriesIn.append(str(net))
+                            normalizeabnormalRibEntriesIn.append(randomHost)
+                            normalizeabnormalRibEntriesIn.append(asPath)
+                            outfileName = tracerouteDir + randomHost + "-paris-traceroute.warts"
+                            normalizeabnormalRibEntriesIn.append(outfileName)
+                            normalizeabnormalRibEntries.append(normalizeabnormalRibEntriesIn)
+
+                    logger.info('Starting traceroutes to ' + str(len(normalizeabnormalRibEntries)) + ' IPs.')
+                    tracePool = processPool(numThreads=40)
+                    tracePool.runParallelWithPool(runTraceroute, normalizeabnormalRibEntries)
+                    logger.info('All traceroutes complete.')
+                    logger.info('Loading traceroutes to DB.')
+                    output.loadTracestoDB(db, normalizeabnormalRibEntries)
+                    logger.info('All traceroutes loaded to DB.')
+
+                except:
+                    traceback.print_exc()
 
             #Save at least one cache dump
             if numfile==1:
@@ -389,6 +438,15 @@ def resolvePaths(oneEntry):
         
             return
 
+def runTraceroute(abnormalRibEntry):
+    randomHost=abnormalRibEntry[5]
+    outfileName=tracerouteDir+randomHost+"-paris-traceroute.warts"
+    try:
+        command="sudo -S scamper -o {0} -O warts -I \'trace -P icmp-paris -q 1 -Q {1}\' < .sudo.auth".format(outfileName,randomHost)
+        os.system(command)
+    except:
+        traceback.print_exc()
+        print("ERROR in traceroute.")
 
 
 if __name__ == "__main__":
@@ -419,6 +477,9 @@ if __name__ == "__main__":
         logfilename=config['DEFAULTS']['logFile']
         dirpath=config['DEFAULTS']['MRTDir']
         tracerouteDir=config['DEFAULTS']['tracerouteDir']
+
+        runTraceroutesLocal=config['TRACEROUTES']['runTraceroutesLocal']
+        runTraceroutesRIPEAtlas=config['TRACEROUTES']['runTraceroutesRIPEAtlas']
     except:
         print('Error in reading config '+configFile)
         exit(1)
@@ -514,8 +575,8 @@ if __name__ == "__main__":
                 if 'rib' in name or 'bview' in name:
                     #Sampling
                     #or '.0800.' in name or '.1600.' in name
-                    if '.0000.' in name:
-                        mrtfiles.append(name)
+                    #if '.0000.' in name:
+                    mrtfiles.append(name)
 
         if len(mrtfiles)==0:
             logger.warn("No MRT file found")
@@ -528,10 +589,10 @@ if __name__ == "__main__":
         end_time,_=currentTime()
         processingTime=str(int((end_time-start_time)/60))+' minutes and '+str(int((end_time-start_time)%60))+' seconds'
         db.commit()
-
-        logger.info("Launching traceroutes")
-        command="python2.7 runRIPETraceroute.py &> riperun.stdout"
-        os.system(command)
+        if runTraceroutesRIPEAtlas:
+            logger.info("Launching traceroutes")
+            command="python2.7 runRIPETraceroute.py &> riperun.stdout"
+            os.system(command)
 
         logger.info('-----Finished detour detection for {0} to {1} in {2}-----'.format(preTime,strTime,processingTime))
 

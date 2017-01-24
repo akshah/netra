@@ -30,8 +30,9 @@ Instructions to launch analysis
 filters/peers/fine_peers and filters/prefixes/fine_prefixes files respectively and update conf/detourDetection.conf.
 6. Launch analysis using detectRIPELiveDetours.py
 
-Note: If you want to launch traceroutes using RIPEAtlas you will need RIPE credits. Set up
+Note: If you want to launch traceroutes using RIPEAtlas you will need RIPE credits. Set up keys in conf/ripe.conf.
 If you want to launch local traceroutes then scamper utility needs to be installed: https://www.caida.org/tools/measurement/scamper/
+Scamper needs root access. Add your auth here: .sudo.auth
 
 Contact
 ---------
