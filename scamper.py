@@ -12,6 +12,7 @@ def runTraceroute(ip):
         os.makedirs(directory)
 
     outfileName=outDir+ip+"-paris-traceroute.warts"
+    #TODO: Check if host country is same as destination country (No need to launch traceroutes for foreign AS)
     try:
         command="sudo -S scamper -o {0} -O warts -I \'trace -P icmp-paris -q 3 -Q {1}\' < .sudo.auth".format(outfileName,ip)
         os.system(command)

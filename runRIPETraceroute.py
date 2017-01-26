@@ -4,11 +4,13 @@ from ripe.atlas.cousteau import Probe
 import ipaddress
 from datetime import datetime
 import traceback
+import configparser
 import MySQLdb as pymysql
 from operator import itemgetter
 from contextlib import closing
 import random
 import time
+import sys
 from math import radians, cos, sin, asin, sqrt
 from ripe.atlas.cousteau import (
   Ping,
@@ -146,7 +148,7 @@ def runTraceroute(target,country,asn):
 
 if __name__ == "__main__":
 
-    if sys.version_info < (3, 0):
+    if sys.version_info < (2, 7):
         print("ERROR: RIPE only support python2.7. Please use python2.7")
         exit(0)
 
@@ -160,7 +162,7 @@ if __name__ == "__main__":
     try:
         dbname = config['MySQL']['dbname']
         serverIP = config['MySQL']['serverIP']
-        serverPort = config['MySQL']['serverPort']
+        serverPort = int(config['MySQL']['serverPort'])
         user = config['MySQL']['user']
         password = config['MySQL']['password']
 
